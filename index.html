@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>지우의 iPhone</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#0e0f12;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+#phone{position:absolute;left:50%;top:50%;width:390px;height:844px;border-radius:48px;overflow:hidden;background:#222;box-shadow:0 0 0 2px #2a2c31,0 30px 80px #0009}
+.screen{position:absolute;inset:0;opacity:0;pointer-events:none;transform:scale(1.03);transition:opacity .35s,transform .35s}
+.screen.on{opacity:1;pointer-events:auto;transform:none}
+.bg{position:absolute;inset:0;background-size:cover;background-position:center}
+.bg::after{content:"";position:absolute;inset:0;background:linear-gradient(#0003,#0000 30%,#0005)}
+.status{position:absolute;top:0;left:0;right:0;height:54px;padding:19px 30px 0 36px;display:flex;justify-content:space-between;font-size:16px;font-weight:600;z-index:5}
+.status .r{display:flex;gap:7px;align-items:center;font-size:14px}
+.bat{min-width:28px;height:14px;padding:0 4px;border-radius:4px;background:#fff;color:#111;font-size:10px;font-weight:700;display:grid;place-items:center}
+.glass{background:rgba(255,255,255,.26);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+
+/* 잠금화면 */
+#lock .date{position:absolute;top:90px;width:100%;text-align:center;font-size:20px;font-weight:600}
+#lock .clock{position:absolute;top:114px;width:100%;text-align:center;font-size:98px;font-weight:700;letter-spacing:-3px;line-height:1.05}
+.rb{position:absolute;bottom:62px;width:50px;height:50px;border-radius:50%;display:grid;place-items:center;font-size:22px}
+#swipe{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:13px;opacity:.85;padding:10px}
+.hbar{position:absolute;bottom:8px;left:50%;width:134px;height:5px;margin-left:-67px;border-radius:3px;background:#fff;opacity:.85;z-index:6;pointer-events:none}
+
+/* 암호 입력 */
+#passcode .bg{filter:blur(30px) brightness(.5);transform:scale(1.2)}
+.pt{position:absolute;top:118px;width:100%;text-align:center;font-size:19px;font-weight:500}
+.dots{position:absolute;top:164px;left:0;right:0;display:flex;justify-content:center;gap:22px}
+.dots i{width:13px;height:13px;border-radius:50%;border:1.5px solid #fff}
+.dots i.f{background:#fff}
+.shake{animation:sh .4s}
+@keyframes sh{20%{transform:translateX(-12px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
+.pad{position:absolute;top:262px;left:50%;margin-left:-135px;width:270px;display:grid;grid-template-columns:repeat(3,78px);gap:14px 18px}
+.pad button{width:78px;height:78px;border-radius:50%;background:rgba(255,255,255,.2);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:34px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.pad button small{font-size:10px;letter-spacing:2px;margin-top:2px;height:11px}
+.pad button:active{background:rgba(255,255,255,.55)}
+.pad .e{background:none;backdrop-filter:none;pointer-events:none}
+.pf{position:absolute;bottom:50px;left:50px;right:50px;display:flex;justify-content:space-between;font-size:17px}
+
+/* 홈화면 */
+.grid{position:absolute;top:66px;left:24px;right:24px;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:94px}
+.w{grid-column:span 2;grid-row:span 2;margin:0 3px 10px;border-radius:24px;padding:14px;display:flex;flex-direction:column;overflow:hidden}
+.wx{background:linear-gradient(160deg,#3f7fd6,#8ec1f0)}
+.wx small{font-size:13px;font-weight:600}
+.wx .tp{font-size:42px;font-weight:300;line-height:1.1;margin-top:2px}
+.wx .cd{margin-top:auto;font-size:13px;line-height:1.35}
+.mu{background:rgba(20,20,24,.55);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.mu .art{width:76px;height:76px;border-radius:12px;background:linear-gradient(135deg,#ff6a88,#7b6cff);display:grid;place-items:center;font-size:32px}
+.mu b{margin-top:12px;font-size:15px}
+.mu small{font-size:13px;opacity:.7}
+.mu .ctl{margin-top:auto;display:flex;justify-content:space-around;font-size:16px}
+.app{display:flex;flex-direction:column;align-items:center;gap:5px;padding-top:8px;font-size:11px;text-shadow:0 1px 3px #0006}
+.ic{width:60px;height:60px;border-radius:14px;display:grid;place-items:center;font-size:30px;box-shadow:0 2px 6px #0003}
+.search{position:absolute;left:50%;bottom:122px;margin-left:-45px;width:90px;height:32px;border-radius:16px;font-size:13px;display:flex;align-items:center;justify-content:center;gap:5px}
+.dock{position:absolute;left:14px;right:14px;bottom:18px;height:92px;border-radius:34px;display:flex;justify-content:space-around;align-items:center}
+.dock .app{padding:0}.dock .ic{box-shadow:none}.dock .app span{display:none}
+
+/* 흰색 앱 화면 (문자, 사진) */
+.light{background:#fff;color:#000}
+.bar{position:absolute;top:54px;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #e5e5ea;background:#f8f8fa;font-weight:600;font-size:17px}
+.back{position:absolute;left:12px;color:#0a84ff;font-size:17px;font-weight:400}
+.list{position:absolute;top:111px;bottom:70px;left:0;right:0;overflow-y:auto;padding:14px 14px;display:flex;flex-direction:column;gap:6px}
+.bub{max-width:76%;padding:9px 14px;border-radius:19px;font-size:16px;line-height:1.35}
+.bub.me{align-self:flex-end;background:#0a84ff;color:#fff}
+.bub.them{align-self:flex-start;background:#e9e9eb}
+.inp{position:absolute;bottom:26px;left:14px;right:14px;height:36px;border:1px solid #d1d1d6;border-radius:18px;padding:7px 14px;color:#aaa;font-size:15px}
+.ph{position:absolute;top:111px;bottom:0;left:0;right:0;overflow-y:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;align-content:start}
+.ph div{aspect-ratio:1;background-size:cover;background-position:center;background-color:#d8dce2}
+
+/* 전화 */
+.call{text-align:center}
+.call .bg{filter:blur(28px) brightness(.55);transform:scale(1.2)}
+.call h1{position:absolute;top:150px;width:100%;font-size:38px;font-weight:500}
+.call p{position:absolute;top:204px;width:100%;font-size:19px;opacity:.75}
+.cb{position:absolute;bottom:110px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:14px}
+.cb i{width:72px;height:72px;border-radius:50%;display:grid;place-items:center}
+.red{background:#ff3b30}.grn{background:#34c759}
+.end{transform:rotate(135deg)}
+.toast{position:absolute;left:50%;bottom:130px;transform:translateX(-50%);background:#000c;padding:10px 18px;border-radius:20px;font-size:14px;opacity:0;transition:opacity .3s;z-index:20;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.screen,.toast{transition:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><symbol id="phi" viewBox="0 0 24 24"><path fill="#fff" d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></symbol></svg>
+
+<div id="phone">
+  <!-- 잠금화면 -->
+  <section class="screen on" id="lock">
+    <div class="bg wp"></div>
+    <div class="status"><span>SKT</span><span class="r"><span class="bat bt"></span></span></div>
+    <div class="date" id="ldate"></div>
+    <div class="clock t"></div>
+    <div class="rb glass" style="left:46px">🔦</div><div class="rb glass" style="right:46px">📷</div>
+    <button id="swipe">위로 쓸어올려 열기</button><div class="hbar"></div>
+  </section>
+
+  <!-- 암호 입력 -->
+  <section class="screen" id="passcode">
+    <div class="bg wp"></div>
+    <div class="status"><span>SKT</span><span class="r"><span class="bat bt"></span></span></div>
+    <div class="pt">암호 입력</div>
+    <div class="dots" id="dots"></div>
+    <div class="pad" id="pad"></div>
+    <div class="pf"><span>긴급 상황</span><button id="pcancel">취소</button></div>
+    <div class="hbar"></div>
+  </section>
+
+  <!-- 홈화면 -->
+  <section class="screen" id="home">
+    <div class="bg wp"></div>
+    <div class="status"><span class="t"></span><span class="r">SKT <span class="bat bt"></span></span></div>
+    <div class="grid" id="grid">
+      <div class="w wx"><small id="wc"></small><div class="tp" id="wt"></div><div class="cd" id="wd"></div></div>
+      <div class="w mu"><div class="art">🎵</div><b id="mt"></b><small id="ma"></small><div class="ctl"><span>⏮</span><span>⏯</span><span>⏭</span></div></div>
+    </div>
+    <div class="search glass">🔍 검색</div>
+    <div class="dock glass" id="dock"></div>
+    <div class="hbar"></div>
+  </section>
+
+  <!-- 문자 -->
+  <section class="screen light" id="messages">
+    <div class="status" style="color:#000"><span class="t"></span><span class="r">SKT <span class="bat bt" style="background:#000;color:#fff"></span></span></div>
+    <div class="bar"><button class="back" data-go="home">‹ 홈</button><span id="mname"></span></div>
+    <div class="list" id="mlist"></div>
+    <div class="inp">iMessage</div>
+  </section>
+
+  <!-- 사진 -->
+  <section class="screen light" id="photos">
+    <div class="status" style="color:#000"><span class="t"></span><span class="r">SKT <span class="bat bt" style="background:#000;color:#fff"></span></span></div>
+    <div class="bar"><button class="back" data-go="home">‹ 홈</button><span>사진</span></div>
+    <div class="ph" id="plist"></div>
+  </section>
+
+  <!-- 전화 오는 중 -->
+  <section class="screen call" id="incoming">
+    <div class="bg wp"></div>
+    <h1 class="cn"></h1><p>휴대전화</p>
+    <button class="cb" style="left:56px" id="decline"><i class="red"><svg width="34" height="34" class="end"><use href="#phi"/></svg></i>거절</button>
+    <button class="cb" style="right:56px" id="accept"><i class="grn"><svg width="34" height="34"><use href="#phi"/></svg></i>수락</button>
+  </section>
+
+  <!-- 통화 중 -->
+  <section class="screen call" id="incall">
+    <div class="bg wp"></div>
+    <h1 class="cn"></h1><p id="ctime">00:00</p>
+    <button class="cb" style="left:50%;margin-left:-36px" id="hang"><i class="red"><svg width="34" height="34" class="end"><use href="#phi"/></svg></i>끊기</button>
+  </section>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ============================================================
+   여기만 고치면 돼요! (따옴표 "" 안의 글자만 바꾸세요)
+   ============================================================ */
+const CONFIG = {
+  ownerName: "지우",                 // 폰 주인 이름
+  contactName: "이안",               // 전화/문자 보내는 사람 이름
+  time: "10:10",                     // 표시할 시간 ("" 로 두면 실제 현재 시간)
+  date: "10월 17일 (토)",            // 표시할 날짜 ("" 로 두면 실제 오늘 날짜)
+  battery: 85,                       // 배터리 %
+
+  lockWallpaper: "background.jpg",   // 잠금화면 배경 사진 파일 이름
+  homeWallpaper: "background.jpg",   // 홈화면 배경 사진 파일 이름
+
+  passcode: "0907",                  // 잠금 해제 암호 (숫자 4자리)
+
+  messages: [                        // 문자 대화 (from: "them"=상대, "me"=나)
+    { from: "them", text: "지금 어디야?" },
+    { from: "me",   text: "집 가는 중이야" },
+    { from: "them", text: "전화할게, 받아봐" }
+  ],
+
+  callDelaySec: 8,                   // 홈화면에 들어온 뒤 몇 초 후에 전화가 올지
+  callAudio: "call.mp3",             // 전화를 받으면 재생될 mp3 파일 이름
+  ringtone: "",                      // 벨소리 mp3 (없으면 "" 그대로 두기)
+
+  weather: { city: "서울", temp: "18°", cond: "대체로 맑음", range: "최고 22° 최저 12°" },
+  music:   { title: "노래 제목", artist: "가수 이름" },
+
+  photos: ["background.jpg"],        // 사진 앱에 보일 사진 파일들 (쉼표로 추가)
+
+  // 홈화면 앱 15개 — screen 이 "photos"/"messages"면 해당 화면으로 이동, 나머지는 "준비 중" 안내
+  apps: [
+    ["사진","🌸","#fff","photos"],["카메라","📷","#d1d1d6"],["설정","⚙️","#8e8e93"],["캘린더","📅","#fff"],
+    ["시계","🕙","#111"],["지도","🗺️","#e8f5e9"],["메모","📝","#ffd60a"],["App Store","🅰️","#0a84ff"],
+    ["카카오톡","💬","#fee500"],["Instagram","📸","#e1306c"],["YouTube","▶️","#fff"],["지갑","💳","#1c1c1e"],
+    ["파일","🗂️","#4aa3ff"],["계산기","🧮","#ff9f0a"],["건강","❤️","#fff"]
+  ],
+  dock: [["전화","📞","#34c759"],["Safari","🧭","#fff"],["메시지","💬","#34c759","messages"],["음악","🎵","#ff375f"]]
+};
+/* ============================================================ */
+
+const $ = s => document.querySelector(s), $$ = s => document.querySelectorAll(s);
+const C = CONFIG, phone = $("#phone");
+let scale = 1, started = false, audio, ring, tick, pin = "";
+
+/* 화면 크기에 맞게 확대/축소 */
+function fit(){
+  scale = Math.min(innerWidth/390, innerHeight/844);
+  phone.style.transform = `translate(-50%,-50%) scale(${scale})`;
+  phone.style.borderRadius = innerWidth <= 500 ? "0" : "48px";
+}
+addEventListener("resize", fit); fit();
+
+/* 내용 채우기 */
+const now = new Date();
+const timeStr = C.time || now.toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit",hour12:false});
+const dateStr = C.date || now.toLocaleDateString("ko-KR",{month:"long",day:"numeric",weekday:"short"});
+$$(".t").forEach(e => e.textContent = timeStr);
+$$(".bt").forEach(e => e.textContent = C.battery);
+$("#ldate").textContent = dateStr;
+$$(".cn").forEach(e => e.textContent = C.contactName);
+$("#mname").textContent = C.contactName;
+$("#wc").textContent = C.weather.city; $("#wt").textContent = C.weather.temp;
+$("#wd").innerHTML = C.weather.cond + "<br>" + C.weather.range;
+$("#mt").textContent = C.music.title; $("#ma").textContent = C.music.artist;
+
+const grad = "linear-gradient(160deg,#6d8fb5,#c9a9c4)";
+$("#lock .wp").style.backgroundImage = `url("${C.lockWallpaper}"),${grad}`;
+$$("#passcode .wp,#home .wp,.call .wp").forEach(e => e.style.backgroundImage = `url("${C.homeWallpaper}"),${grad}`);
+
+$("#mlist").innerHTML = C.messages.map(m => `<div class="bub ${m.from}"></div>`).join("");
+$$("#mlist .bub").forEach((b,i) => b.textContent = C.messages[i].text);
+$("#plist").innerHTML = C.photos.map(p => `<div style="background-image:url('${p}')"></div>`).join("");
+
+function appHTML(a){
+  return `<button class="app" data-app="${a[3]||""}" data-name="${a[0]}"><div class="ic" style="background:${a[2]}">${a[1]}</div><span>${a[0]}</span></button>`;
+}
+$("#grid").insertAdjacentHTML("beforeend", C.apps.map(appHTML).join(""));
+$("#dock").innerHTML = C.dock.map(appHTML).join("");
+
+/* 화면 전환 */
+function show(id){ $$(".screen").forEach(s => s.classList.toggle("on", s.id === id)); }
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on"); setTimeout(()=>t.classList.remove("on"),1500); }
+
+$$("[data-go]").forEach(b => b.onclick = () => show(b.dataset.go));
+$$(".app").forEach(b => b.onclick = () => b.dataset.app ? show(b.dataset.app) : toast(b.dataset.name + " 앱은 준비 중이에요"));
+
+/* 잠금 해제: 위로 쓸어올리거나 아래 문구 누르기 */
+function unlock(){ pin = ""; updDots(); show("passcode"); }
+let y0 = null;
+$("#lock").addEventListener("pointerdown", e => y0 = e.clientY);
+$("#lock").addEventListener("pointerup", e => { if (y0 !== null && (y0 - e.clientY)/scale > 60) unlock(); y0 = null; });
+$("#swipe").onclick = unlock;
+
+/* 암호 입력 */
+const L = C.passcode.length, dots = $("#dots");
+dots.innerHTML = "<i></i>".repeat(L);
+const sub = {2:"ABC",3:"DEF",4:"GHI",5:"JKL",6:"MNO",7:"PQRS",8:"TUV",9:"WXYZ"};
+$("#pad").innerHTML = [1,2,3,4,5,6,7,8,9,"",0,""].map(n => n === "" ? `<button class="e"></button>` : `<button data-n="${n}">${n}<small>${sub[n]||""}</small></button>`).join("");
+function updDots(){
+  [...dots.children].forEach((d,i) => d.classList.toggle("f", i < pin.length));
+  $("#pcancel").textContent = pin ? "삭제" : "취소";
+}
+$$("#pad [data-n]").forEach(b => b.onclick = () => {
+  if (pin.length >= L) return;
+  pin += b.dataset.n; updDots();
+  if (pin.length < L) return;
+  setTimeout(() => {
+    if (pin === C.passcode){ pin = ""; updDots(); show("home"); startCallTimer(); }
+    else { dots.classList.add("shake"); setTimeout(() => { dots.classList.remove("shake"); pin = ""; updDots(); }, 400); }
+  }, 150);
+});
+$("#pcancel").onclick = () => { if (pin){ pin = pin.slice(0,-1); updDots(); } else show("lock"); };
+
+/* 전화 */
+function startCallTimer(){
+  if (started) return; started = true;
+  setTimeout(() => {
+    show("incoming");
+    if (navigator.vibrate) navigator.vibrate([400,200,400,200,400]);
+    if (C.ringtone){ ring = new Audio(C.ringtone); ring.loop = true; ring.play().catch(()=>{}); }
+  }, C.callDelaySec * 1000);
+}
+function stopRing(){ if (ring){ ring.pause(); ring = null; } }
+function endCall(){
+  clearInterval(tick); stopRing();
+  if (audio){ audio.pause(); audio = null; }
+  show("home");
+}
+$("#decline").onclick = endCall;
+$("#hang").onclick = endCall;
+$("#accept").onclick = () => {
+  stopRing(); show("incall");
+  audio = new Audio(C.callAudio);
+  audio.play().catch(() => toast("mp3 파일을 찾을 수 없어요"));
+  audio.onended = endCall;
+  let s = 0; $("#ctime").textContent = "00:00";
+  tick = setInterval(() => { s++; $("#ctime").textContent = String(Math.floor(s/60)).padStart(2,"0") + ":" + String(s%60).padStart(2,"0"); }, 1000);
+};
+</script>
+</body>
+</html>
