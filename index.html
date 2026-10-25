@@ -157,8 +157,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .sh button{position:absolute;top:18px}
 .sh .sav{margin:6px auto 0;width:40px;height:40px;font-size:17px}
 .sh small{display:block;font-size:11px;margin-top:2px}
-.sdate{position:absolute;top:136px;width:100%;text-align:center;font-size:11px;font-weight:600;color:#8e8e93}
-.smsgs{position:absolute;top:160px;left:0;right:0;bottom:78px;overflow-y:auto;padding:0 12px;display:flex;flex-direction:column;gap:3px}
+.sdt{align-self:stretch;text-align:center;font-size:11px;font-weight:600;color:#8e8e93;margin:12px 0 6px}
+.smsgs{position:absolute;top:132px;left:0;right:0;bottom:78px;overflow-y:auto;padding:0 12px;display:flex;flex-direction:column;gap:3px}
 .sb{max-width:76%;padding:8px 14px;border-radius:18px;font-size:16px;line-height:1.3}
 .sb.me{align-self:flex-end;background:#0a84ff;color:#fff}
 .sb.them{align-self:flex-start;background:#e9e9eb;margin-top:6px}
@@ -252,7 +252,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   <section class="screen sm" id="msgroom">
     <div class="status" style="color:#000"><span class="t"></span><span class="r">SKT <span class="bat bt" style="background:#000;color:#fff"></span></span></div>
     <div class="sh"><button style="left:14px" data-go="messages"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div class="sav sn"></div><small><span id="srname"></span> ›</small><button style="right:16px"><svg viewBox="0 0 28 24"><rect x="2" y="5" width="16" height="14" rx="3"/><path d="M18 10l7-3.500v11L18 14"/></svg></button></div>
-    <div class="sdate" id="srdate"></div>
     <div class="smsgs" id="smsgs"></div>
     <div class="sin"><i>+</i><div>iMessage</div></div>
     <div class="hbar" style="background:#000"></div>
@@ -359,11 +358,13 @@ const CONFIG = {
   sms: {
     name: "지우",
     listDay: "수요일",                 // 목록에 보이는 날짜/요일
-    roomDate: "10월 21일 (수) 오후 12:10", // 대화방 위쪽 날짜
+    roomDate: "10월 21일 (수) 오후 12:10", // 대화 맨 위 첫 날짜 (messages 첫 줄에 date를 직접 쓰면 무시돼요)
     read: true,                        // 내 마지막 말풍선 아래 "읽음" 표시
     messages: [                        // from: "me"=나(파란색), "them"=상대(회색)
       { from: "me",   text: "지우야 힘이 나는 말 좀 해줘" },
       { from: "them", text: "운이 좋은 시기가 또 올 거얌" }
+      // 날짜를 중간에 넣으려면 아래처럼 한 줄 추가 (앞 줄 끝에 쉼표 필요)
+      // { date: "10월 22일 (목) 오전 9:30" },
     ]
   },
 
@@ -397,7 +398,7 @@ const CONFIG = {
   messageBadge: 97,                  // 메시지 아이콘 빨간 숫자 (0 이면 숨김)
   kakaoBadge: 6,                     // 카카오톡 아이콘 빨간 숫자 (0 이면 숨김)
 
-  photos: ["background.jpg","p1.jpg","p2.jpg","p3.jpg","p4.jpg","p5.jpg","p6.jpg","p7.jpg"],        // 사진 앱에 보일 사진 파일들 (쉼표로 추가)
+  photos: ["background.jpg"],        // 사진 앱에 보일 사진 파일들 (쉼표로 추가)
 
   // 홈화면 앱: [이름, 아이콘, 이동할 화면]  (화면이 없으면 "준비 중" 안내)
   apps: [
@@ -443,11 +444,16 @@ $$("#passcode .wp,#home .wp,.call .wp").forEach(e => e.style.backgroundImage = `
 const M = C.sms, mLast = M.messages[M.messages.length-1];
 $$(".sn").forEach(e => e.textContent = M.name);
 $("#sname").textContent = M.name; $("#srname").textContent = M.name;
-$("#sday").textContent = M.listDay; $("#sprev").textContent = mLast.text; $("#srdate").textContent = M.roomDate;
-const lastMe = M.messages.map(m => m.from).lastIndexOf("me");
-$("#smsgs").innerHTML = M.messages.map((m,i) => `<div class="sb ${m.from}"></div>` + (M.read && i === lastMe && i === M.messages.length-1 || M.read && i === lastMe ? `<div class="srd">읽음</div>` : "")).join("");
-$$("#smsgs .sb").forEach((b,i) => b.textContent = M.messages[i].text);
-$("#srow").onclick = () => show("msgroom");
+$("#sday").textContent = M.listDay;
+/* 대화 목록: { date: "..." } 는 날짜 줄, { from, text } 는 말풍선. 맨 위에 날짜가 없으면 roomDate를 넣어요 */
+const mItems = M.messages[0] && M.messages[0].date ? M.messages.slice() : [{ date: M.roomDate }].concat(M.messages);
+const mTexts = mItems.filter(m => m.text);
+$("#sprev").textContent = mTexts.length ? mTexts[mTexts.length-1].text : "";
+const lastMe = mItems.map(m => m.from).lastIndexOf("me");
+$("#smsgs").innerHTML = mItems.map((m,i) => m.date ? `<div class="sdt"></div>` : `<div class="sb ${m.from}"></div>` + (M.read && i === lastMe ? `<div class="srd">읽음</div>` : "")).join("");
+const mEls = $("#smsgs").querySelectorAll(".sdt,.sb");
+mItems.forEach((m,i) => mEls[i].textContent = m.date || m.text);
+$("#srow").onclick = () => { show("msgroom"); $("#smsgs").scrollTop = $("#smsgs").scrollHeight; };
 $("#sback").onclick = () => show("home");
 $("#plist").innerHTML = C.photos.map(p => `<div style="background-image:url('${p}')"></div>`).join("");
 
